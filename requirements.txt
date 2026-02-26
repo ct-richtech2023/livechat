@@ -1,0 +1,14 @@
+# 直播聊天读取 (bot.py)
+pytchat>=0.5.0
+loguru>=0.7.0
+
+# OAuth、API、代理 (oauth_youtube.py, sender.py)
+google-api-python-client>=2.0.0
+google-auth>=2.0.0
+google-auth-oauthlib>=1.0.0
+google-auth-httplib2>=0.1.0
+httplib2>=0.21.0
+PySocks>=1.7.0
+
+# OBS 控制 (obs.py)
+obsws-python>=1.0.0
