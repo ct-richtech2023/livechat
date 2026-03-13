@@ -44,3 +44,25 @@ pip install -r requirements.txt
 - 仅**正在直播**的视频可被 pytchat 抓取；直播结束后无法抓取
 - 若直播未开始，程序会提示并退出
 - 使用 API 或发弹幕需网络可访问 Google（可配置代理，见 `oauth_youtube.py` 中的 `PROXY_*`）
+
+
+###本地代码调试
+```shell
+#开启直播
+python start_live.py adame14
+#obs切换画面
+python switch_scene.py Video
+#obs修改标题
+python obs_edit_text.py "Text (GDI+)" "hello everyone"
+#关闭直播
+python end_live.py
+```
+
+###OBS设置”流延迟”
+1.打开OBS
+2.点击右下角设置
+3.进入高级
+找到流延迟(Stream Delay)
+5.勾选「启用」
+6.设置延迟时间(单位:秒)
+7.点击确定
