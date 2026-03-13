@@ -1,21 +1,14 @@
 import os
-import httplib2
-from httplib2 import ProxyInfo
 from googleapiclient.discovery import build
 from google_auth_oauthlib.flow import InstalledAppFlow
 from google.oauth2.credentials import Credentials
 from google.auth.transport.requests import Request
-from google_auth_httplib2 import AuthorizedHttp
 
 # 直播创建/绑定等写操作建议用这个 scope；只读可换 youtube.readonly
 SCOPES = ["https://www.googleapis.com/auth/youtube"]
 
 CLIENT_SECRET_FILE = "client_secret.json"
 TOKEN_FILE = "token.json"
-
-# 改成你的代理：截图是 127.0.0.1:7897
-PROXY_HOST = "127.0.0.1"
-PROXY_PORT = 7897
 
 def get_creds():
     creds = None
@@ -44,16 +37,9 @@ def get_creds():
     return creds
 
 def get_youtube_client():
-    """获取带代理的 YouTube API 客户端，供 sender 等模块复用"""
+    """获取 YouTube API 客户端，供 sender 等模块复用"""
     creds = get_creds()
-    proxy_info = ProxyInfo(
-        proxy_type=httplib2.socks.PROXY_TYPE_HTTP,  # 如果是 socks5 改成 PROXY_TYPE_SOCKS5
-        proxy_host=PROXY_HOST,
-        proxy_port=PROXY_PORT,
-    )
-    http = httplib2.Http(proxy_info=proxy_info, timeout=30)
-    authed_http = AuthorizedHttp(creds, http=http)
-    return build("youtube", "v3", http=authed_http)
+    return build("youtube", "v3", credentials=creds)
 
 
 def main():

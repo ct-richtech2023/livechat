@@ -303,6 +303,6 @@ class YoutubeLivePytchat:
 
 
 if __name__ == "__main__":
-    VIDEO_ID = "Fa0owhNnhOw"
+    VIDEO_ID = "nqYWoAWJ2Mg"
     pt = YoutubeLivePytchat(VIDEO_ID)
     pt.fetch_all(duration_sec=300, realtime_print=True)

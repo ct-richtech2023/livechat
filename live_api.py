@@ -80,17 +80,27 @@ class ChatMessage:
 class YoutubeLiveAPI:
     """YouTube 直播 API 封装，获取官方 API 可用的所有数据"""
 
-    def __init__(self, video_id: str | None = None):
+    def __init__(self, video_id: str | None = None, auto_fetch_video_id: bool = True):
+        """
+        初始化 YouTube Live API 客户端。
+        
+        参数:
+            video_id: 直播视频 ID，若不传且 auto_fetch_video_id=True 则自动获取当前直播
+            auto_fetch_video_id: 是否自动获取当前直播的 video_id（创建新直播时可设为 False）
+        """
         self._youtube = get_youtube_client()
         self._live_chat_id = None
         if video_id:
             self.video_id = video_id
-        else:
+        elif auto_fetch_video_id:
             # 未传则在线获取：优先当前直播，否则即将开始的直播
             self.video_id = self._fetch_my_live_video_id() or ""
-            logger.info(f"获取到当前/即将直播的 video_id: {self.video_id}")
-            if not self.video_id:
+            if self.video_id:
+                logger.info(f"获取到当前/即将直播的 video_id: {self.video_id}")
+            else:
                 logger.warning("未传入 video_id 且未获取到当前/即将直播，后续需 video_id 的接口可能失败")
+        else:
+            self.video_id = ""
 
     def _fetch_my_live_video_id(self) -> str | None:
         """内部：获取当前账号的直播 video_id（active 或 upcoming）"""
@@ -475,12 +485,14 @@ class YoutubeLiveAPI:
         enable_dvr: bool = True,
         record_from_start: bool = True,
         enable_embed: bool = False,
+        made_for_kids: bool = False,
     ) -> dict | None:
         """
         创建直播。scheduled_start_time/scheduled_end_time 为 ISO 8601 格式。
         scheduled_start_time 须为将来时间且不能太远（否则 invalidScheduledStartTime）。
         privacy_status: "public" | "unlisted" | "private"。
         enable_embed: 默认 False。True 需账号在 YouTube 功能页开启「嵌入直播」，否则会报 invalidEmbedSetting。
+        made_for_kids: 是否为儿童内容（COPPA），默认 False（非儿童内容）。
         返回创建的 broadcast，失败返回 None。
         """
         body: dict = {
@@ -490,7 +502,10 @@ class YoutubeLiveAPI:
                 **({"scheduledEndTime": scheduled_end_time} if scheduled_end_time else {}),
                 "description": description or "",
             },
-            "status": {"privacyStatus": privacy_status},
+            "status": {
+                "privacyStatus": privacy_status,
+                "selfDeclaredMadeForKids": made_for_kids,
+            },
             "contentDetails": {
                 "enableDvr": enable_dvr,
                 "recordFromStart": record_from_start,
@@ -810,6 +825,27 @@ class YoutubeLiveAPI:
         resp = self._req(_do)
         items = resp.get("items", [])
         return items[0] if items else None
+
+    def get_stream(self, stream_id: str) -> dict | None:
+        """
+        获取单个推流的完整信息。
+        返回包含 snippet, cdn, status 的 dict，失败返回 None。
+        """
+        try:
+            return self._get_stream(stream_id)
+        except Exception as e:
+            logger.error(f"获取推流信息失败: {e}")
+            return None
+
+    def get_stream_status(self, stream_id: str) -> str | None:
+        """
+        获取推流状态。
+        返回 streamStatus: "active" | "inactive" | "created" | "error"，失败返回 None。
+        """
+        stream = self.get_stream(stream_id)
+        if not stream:
+            return None
+        return stream.get("status", {}).get("streamStatus")
 
     def delete_stream(self, stream_id: str) -> bool:
         """删除推流。"""

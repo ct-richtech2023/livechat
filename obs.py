@@ -32,7 +32,7 @@ import time
 
 HOST = "127.0.0.1"
 PORT = 4455
-PASSWORD = "l30QZOVZtaQGtvmY"  # 改这里
+PASSWORD = "47HSjVY2kXeFtnvb"  # 改这里
 
 
 class OBSCtrl:
@@ -243,8 +243,8 @@ def main():
     time.sleep(2)
     # 直播/录制控制示例（按需取消注释）
     # print("Stream active:", obs.is_streaming())
-    obs.set_stream_key_youtube("kmth-wj4b-5k3j-p2xp-9vr2")
-    time.sleep(1)
+    # obs.set_stream_key_youtube("kmth-wj4b-5k3j-p2xp-9vr2")
+    # time.sleep(1)
     obs.start_stream()   # 开始推流
     # obs.stop_stream()    # 停止推流
     # obs.start_record()   # 开始录制
